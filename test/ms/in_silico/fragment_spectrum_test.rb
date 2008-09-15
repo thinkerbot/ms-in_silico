@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '../tap_test_helper.rb')
+require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb')
 require 'ms/in_silico/fragment_spectrum'
 
 class FragmentSpectrumTest < Test::Unit::TestCase

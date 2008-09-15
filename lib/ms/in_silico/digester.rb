@@ -4,9 +4,12 @@ require 'strscan'
 module Ms
   module InSilico
     class Digester
-      include Constants::Library  
-
-      attr_reader :name, :cleave_str, :cleave_regexp, :cterm_exception, :cterm_cleavage, :scanner
+      attr_reader :name
+      attr_reader :cleave_str
+      attr_reader :cleave_regexp
+      attr_reader :cterm_exception
+      attr_reader :cterm_cleavage
+      attr_reader :scanner
     
       # a multiline whitespace regexp
       WHITESPACE = /\s*/m
@@ -126,9 +129,10 @@ module Ms
         end
         results
       end
-    
+
       TRYPSIN = Digester.new('Trypsin', 'KR', 'P', true)
-    
+      
+      include Constants::Library  
       library.index_by_attribute :name
     end
   end
