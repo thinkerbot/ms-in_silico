@@ -3,7 +3,7 @@ require 'ms/in_silico/fragment_spectrum'
 
 class FragmentSpectrumTest < Test::Unit::TestCase
   include Ms::InSilico
-  include Tap::Test::SubsetMethods
+  acts_as_subset_test
   
   #
   # class locate_residues tests

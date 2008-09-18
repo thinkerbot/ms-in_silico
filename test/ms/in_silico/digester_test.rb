@@ -3,7 +3,7 @@ require 'ms/in_silico/digester'
 
 class DigesterTest < Test::Unit::TestCase
   include Ms::InSilico
-  include Tap::Test::SubsetMethods
+  acts_as_subset_test
   
   attr_accessor :digester
   def setup
