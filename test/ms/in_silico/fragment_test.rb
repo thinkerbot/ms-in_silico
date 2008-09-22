@@ -1,16 +1,16 @@
 require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb') 
-require 'ms/in_silico/predict'
+require 'ms/in_silico/fragment'
 
-class Ms::InSilico::PredictTest < Test::Unit::TestCase
+class Ms::InSilico::FragmentTest < Test::Unit::TestCase
   acts_as_script_test 
   
   def test_predict_documentation
     script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
       cmd.check "documentation", %q{
-% rap predict TVQQEL --+ dump --no-audit
+% rap fragment TVQQEL --+ dump --no-audit
 # date: :...:
 --- 
-ms/in_silico/predict (:...:): 
+ms/in_silico/fragment (:...:): 
 - - 717.377745628191
   - 616.330067154091
   - 517.261653237891

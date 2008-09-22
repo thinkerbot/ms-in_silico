@@ -2,7 +2,7 @@ require 'ms/in_silico/fragment_spectrum'
 
 module Ms
   module InSilico
-    # Ms::InSilico::Predict::manifest calculates a theoretical ms/ms spectrum
+    # Ms::InSilico::Fragment::manifest calculates a theoretical ms/ms spectrum
     #
     # Calculates a theoretical ms/ms spectrum from a peptide sequence.
     # Configurations allow the specification of one or more fragmentation 
@@ -26,14 +26,19 @@ module Ms
     #     - 586.283116961491
     #     - 699.367180941891
     #
-    class Predict < Tap::Task
+    class Fragment < Tap::Task
     
       config :series, ['y', 'b'], &c.array   # a list of the series to include
       config :charge, 1, &c.integer          # the charge for the m/z values
       config :intensity, nil, &c.num_or_nil  # a uniform intensity value
       
+      def fragment_spectrum(peptide)
+        FragmentSpectrum.new(peptide)
+      end
+      
       def process(peptide)
-        spec = FragmentSpectrum.new(peptide)
+        spec = fragment_spectrum(peptide)
+        
         masses = []
         series.each do |s| 
           masses.concat(spec.series(s))
