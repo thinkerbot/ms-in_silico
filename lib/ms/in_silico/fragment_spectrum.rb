@@ -74,18 +74,29 @@ module Ms
           @residues_to_locate = ""
         end
       end
-    
+      
+      EmpiricalFormula = Molecules::EmpiricalFormula
       Residue = Molecules::Libraries::Residue
       Particle = Constants::Libraries::Particle
-      HYDROGEN = Molecules::EmpiricalFormula.parse("H")
-      HYDROXIDE = Molecules::EmpiricalFormula.parse("OH")
-
+      
+      HYDROGEN = EmpiricalFormula.parse("H")
+      HYDROXIDE = EmpiricalFormula.parse("OH")
+      ELECTRON = Particle['Electron']
+      
       reset_locate_residues
-
+      
+      # The peptide sequence 
       attr_reader :sequence
+      
+      # The n-terminal modification (default H)
       attr_reader :nterm
+      
+      # The c-terminal modification (default OH)
       attr_reader :cterm
+      
+      # An optional block used to calculate masses of molecules.
       attr_reader :block
+      
       attr_reader :residue_masses
       attr_reader :ladder
       attr_reader :residue_locations
@@ -108,13 +119,15 @@ module Ms
         @series_hash = {}
         @series_mask = {}
       end
-    
-      def mass(molecule)
-        molecule.mass(&block)
+      
+      # Returns the mass of the parent ion for the sequence, given the charge.
+      def parent_ion_mass(charge=1)
+        (mass(nterm) + ladder.last + mass(cterm) + charge * proton_mass)/charge
       end
     
+      # Returns the mass of a proton (ie Hydrogen minus an Electron)
       def proton_mass
-        molecule_mass('H') - Particle['Electron'].mass
+        mass(HYDROGEN) - ELECTRON.mass
       end
     
       # Retrieves the specfied series, assuming a charge of 1.  A different charge 
@@ -153,7 +166,7 @@ module Ms
     
       def immonium_series(charge=1, mod=nil)
         get_series(:immonium, charge, mod) do
-          delta = molecule_mass(mod) - molecule_mass('CO') 
+          delta = mass(mod) - mass('CO') 
         
           previous = 0
           series = []
@@ -168,7 +181,7 @@ module Ms
       # [N]+[M]-CHO
       def a_series(charge=1, mod=nil)
         get_series(:a, charge, mod) do
-          delta = molecule_mass(mod) + mass(nterm) - molecule_mass('CHO') + charge * proton_mass
+          delta = mass(mod) + mass(nterm) - mass('CHO') + charge * proton_mass
           nterm_series(delta, charge)
         end
       end
@@ -176,7 +189,7 @@ module Ms
       # [N]+[M]-H
       def b_series(charge=1, mod=nil)
         get_series(:b, charge, mod) do
-          delta = molecule_mass(mod) + mass(nterm) - molecule_mass('H') + charge * proton_mass
+          delta = mass(mod) + mass(nterm) - mass('H') + charge * proton_mass
           nterm_series(delta, charge)
         end
       end
@@ -184,7 +197,7 @@ module Ms
       # [N]+[M]+NH2
       def c_series(charge=1, mod=nil)
         get_series(:c, charge, mod) do
-          delta = molecule_mass(mod) + mass(nterm) + molecule_mass('NH2') + charge * proton_mass
+          delta = mass(mod) + mass(nterm) + mass('NH2') + charge * proton_mass
           nterm_series(delta, charge)
         end
       end
@@ -198,7 +211,7 @@ module Ms
       #++
       def cladder_series(charge=1, mod=nil)
         get_series(:cladder, charge, mod) do
-          delta = molecule_mass(mod) +  molecule_mass('H2O') + charge * proton_mass
+          delta = mass(mod) +  mass('H2O') + charge * proton_mass
           nterm_series(delta, charge)
         end
       end
@@ -206,7 +219,7 @@ module Ms
       #  [C]+[M]+CO-H
       def x_series(charge=1, mod=nil)
         get_series(:x, charge, mod) do 
-          delta = molecule_mass(mod) + ladder.last + mass(cterm) + molecule_mass('CO - H') + charge * proton_mass
+          delta = mass(mod) + ladder.last + mass(cterm) + mass('CO - H') + charge * proton_mass
           cterm_series(delta, charge)
         end
       end
@@ -214,7 +227,7 @@ module Ms
       # [C]+[M]+H
       def y_series(charge=1, mod=nil)
         get_series(:y, charge, mod) do
-          delta = molecule_mass(mod) + ladder.last + mass(cterm) + molecule_mass('H') + charge * proton_mass
+          delta = mass(mod) + ladder.last + mass(cterm) + mass('H') + charge * proton_mass
           cterm_series(delta, charge)
         end
       end
@@ -222,7 +235,7 @@ module Ms
       # [C]+[M]-H
       def Y_series(charge=1, mod=nil)
         get_series(:Y, charge, mod) do
-          delta = molecule_mass(mod) + ladder.last + mass(cterm) - molecule_mass('H') + charge * proton_mass
+          delta = mass(mod) + ladder.last + mass(cterm) - mass('H') + charge * proton_mass
           cterm_series(delta, charge)
         end
       end
@@ -230,7 +243,7 @@ module Ms
       # [C]+[M]-NH2
       def z_series(charge=1, mod=nil)
         get_series(:z, charge, mod) do
-          delta = molecule_mass(mod) + ladder.last + mass(cterm) - molecule_mass('NH2') + charge * proton_mass
+          delta = mass(mod) + ladder.last + mass(cterm) - mass('NH2') + charge * proton_mass
           cterm_series(delta, charge)
         end
       end
@@ -244,7 +257,7 @@ module Ms
       #++
       def nladder_series(charge=1, mod=nil)
         get_series(:nladder, charge, mod) do
-          delta = molecule_mass(mod) + ladder.last + molecule_mass('H2O') + charge * proton_mass
+          delta = mass(mod) + ladder.last + mass('H2O') + charge * proton_mass
           cterm_series(delta, charge)
         end
       end
@@ -262,8 +275,14 @@ module Ms
       # by the series type (ex: b, y).  
       attr_accessor :series_mask
     
-      def molecule_mass(molecule)
-        molecule == nil ? 0 : Molecules::EmpiricalFormula.mass(molecule)
+      # Calculates the mass of the molecule, which may be an EmpiricalFormula,
+      # a string, or nil (for which the mass is 0).
+      def mass(molecule)
+        case molecule
+        when EmpiricalFormula then molecule.mass(&block)
+        when nil then 0
+        else EmpiricalFormula.mass(molecule, &block)
+        end
       end
     
       # Generates an n-terminal series (ex: a, b, or c) by adding delta
