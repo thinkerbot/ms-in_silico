@@ -118,9 +118,6 @@ module Ms
       # The c-terminal modification (default OH)
       attr_reader :cterm
       
-      # The electron mass used in the calculation of proton_mass.
-      attr_reader :electron_mass
-      
       # An optional block used to calculate masses of molecules.
       attr_reader :block
       
@@ -132,23 +129,18 @@ module Ms
       # modifications.  Masses will be calculated using the block, if
       # specified.  If no block is specified, then the monoisoptopic
       # masses will be used.
-      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, residue_masses=nil, electron_mass=ELECTRON.mass, &block)
+      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, &block)
         @sequence = sequence
         @nterm = nterm
         @cterm = cterm
-        @electron_mass = electron_mass
         @block = block
 
-        @residue_masses = if residue_masses == nil
-          Residue.residue_index.collect do |residue| 
-            next(0) if residue == nil
-            mass(residue)
-          end
-        else
-          residue_masses
+        @residue_masses = Residue.residue_index.collect do |residue| 
+          next(0) if residue == nil
+          mass(residue)
         end
         
-        @ladder, @residue_locations = self.class.scan(sequence, @residue_masses)
+        @ladder, @residue_locations = self.class.scan(sequence, residue_masses)
 
         @series_hash = {}
         @series_mask = {}
@@ -161,7 +153,7 @@ module Ms
     
       # Returns the mass of a proton (ie Hydrogen minus an Electron)
       def proton_mass
-        mass(HYDROGEN) - electron_mass
+        mass(HYDROGEN) - mass(ELECTRON)
       end
     
       # Retrieves the specfied series, assuming a charge of 1.  A different charge 
@@ -313,10 +305,12 @@ module Ms
       # a string, or nil (for which the mass is 0).
       def mass(molecule)
         case molecule
-        when EmpiricalFormula then molecule.mass(&block)
+        when EmpiricalFormula, Particle then molecule.mass(&block)
+        when String then EmpiricalFormula.mass(molecule, &block)
         when nil then 0
         when Numeric then molecule
-        else EmpiricalFormula.mass(molecule, &block)
+        else
+          raise "cannot calculate mass of: #{molecule}"
         end
       end
     
