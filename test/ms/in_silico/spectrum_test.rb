@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb')
-require 'ms/in_silico/fragment_spectrum'
+require 'ms/in_silico/spectrum'
 
-class FragmentSpectrumTest < Test::Unit::TestCase
+class SpectrumTest < Test::Unit::TestCase
   include Ms::InSilico
   acts_as_subset_test
   
@@ -9,7 +9,7 @@ class FragmentSpectrumTest < Test::Unit::TestCase
   # class locate_residues tests
   #
   
-  class Subclass < FragmentSpectrum
+  class Subclass < Spectrum
     locate_residues "PS"
   end
   
@@ -17,7 +17,7 @@ class FragmentSpectrumTest < Test::Unit::TestCase
     assert_equal({'P' => [1, 2, 6], 'S' => [5]}, Subclass.new('RPPGFSPFR').residue_locations) 
   end
   
-  class Cumulative < FragmentSpectrum
+  class Cumulative < Spectrum
     locate_residues "PS"
   end
   
@@ -31,7 +31,7 @@ class FragmentSpectrumTest < Test::Unit::TestCase
     assert_equal "PSRG", Cumulative.residues_to_locate
   end
   
-  class Reset < FragmentSpectrum
+  class Reset < Spectrum
     locate_residues "PS"
   end
 
@@ -46,14 +46,14 @@ class FragmentSpectrumTest < Test::Unit::TestCase
   #
   
   def test_series_documentation
-    f = FragmentSpectrum.new 'RPPGFSPFR' 
+    f = Spectrum.new 'RPPGFSPFR' 
     assert_equal f.series('y'), f.y_series
     assert_equal f.series('b++'), f.b_series(2)
     assert_equal f.series('nladder-'), f.nladder_series(-1)
   end
   
   def test_series_can_specify_charge
-    f = FragmentSpectrum.new 'RPPGFSPFR' 
+    f = Spectrum.new 'RPPGFSPFR' 
     assert_equal f.series('y'), f.y_series
     
     assert_equal f.series('y-'), f.y_series(-1)
@@ -66,7 +66,7 @@ class FragmentSpectrumTest < Test::Unit::TestCase
   end
   
   def test_series_raises_error_for_zero_charge_and_unknown_series
-    f = FragmentSpectrum.new('SAMPLE')
+    f = Spectrum.new('SAMPLE')
     assert_raise(ArgumentError) { f.series 'y+-' }
     assert_raise(ArgumentError) { f.series 'q' }
   end
@@ -77,7 +77,7 @@ class FragmentSpectrumTest < Test::Unit::TestCase
   
   def test_initialize_speed
     benchmark_test(20) do |x|
-      x.report("1k RPPGFSPFR * 10") { 1000.times { FragmentSpectrum.new("RPPGFSPFR" * 10) } }
+      x.report("1k RPPGFSPFR * 10") { 1000.times { Spectrum.new("RPPGFSPFR" * 10) } }
     end
   end
 

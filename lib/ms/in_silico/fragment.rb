@@ -1,4 +1,4 @@
-require 'ms/in_silico/fragment_spectrum'
+require 'ms/in_silico/spectrum'
 
 module Ms
   module InSilico
@@ -41,13 +41,13 @@ module Ms
       config :nterm, 'H', &MOLECULE
       config :cterm, 'OH', &MOLECULE
       
-      def fragment_spectrum(peptide)
-        FragmentSpectrum.new(peptide, nterm, cterm)
+      def spectrum(peptide)
+        Spectrum.new(peptide, nterm, cterm)
       end
       
       def process(peptide)
         log :fragment, peptide
-        spec = fragment_spectrum(peptide)
+        spec = spectrum(peptide)
         
         masses = []
         series.each {|s| masses.concat(spec.series(s)) }

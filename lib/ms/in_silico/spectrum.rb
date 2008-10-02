@@ -5,7 +5,7 @@ require 'ms/in_silico'
 module Ms
   module InSilico
 
-    # FragmentSpectrum calculates the theoretical masses for ions produced by
+    # Spectrum calculates the theoretical masses for ions produced by
     # fragmenting a peptide sequence in a process such as CID (collision induced 
     # disocciation).  The formula used to calculate ions for the various ion 
     # series were obtained from the MatrixScience 
@@ -45,7 +45,11 @@ module Ms
     #--
     # ALL of the collections could be sped up using inline
     #++
-    class FragmentSpectrum
+    class Spectrum
+      EmpiricalFormula = Molecules::EmpiricalFormula
+      Residue = Molecules::Libraries::Residue
+      Particle = Constants::Libraries::Particle
+      
       class << self
         attr_reader :residues_to_locate
       
@@ -53,10 +57,10 @@ module Ms
           base.instance_variable_set(:@residues_to_locate, @residues_to_locate.dup)
         end
       
-        # Specifies which residues to locate when initializing a FragmentSpectrum.
+        # Specifies which residues to locate when initializing a Spectrum.
         # Most useful in subclasses.
         #
-        #   class Subclass < FragmentSpectrum
+        #   class Subclass < Spectrum
         #     locate_residues "PS"
         #   end
         # 
@@ -73,11 +77,31 @@ module Ms
         def reset_locate_residues
           @residues_to_locate = ""
         end
+        
+        def scan(sequence, masses, residues=residues_to_locate)
+          locations = []
+          residues.each_byte {|byte| locations[byte] = []}
+
+          mass = 0
+          ladder = []
+          sequence.each_byte do |byte|
+            mass += masses[byte]
+            location = locations[byte]
+
+            location << ladder.length if location
+            ladder << mass
+          end
+
+          hash = {}
+          0.upto(residues.length-1) do |index|
+            letter = residues[index, 1]
+            byte = letter[0]
+            hash[letter] = locations[byte]
+          end
+
+          [ladder, hash]
+        end
       end
-      
-      EmpiricalFormula = Molecules::EmpiricalFormula
-      Residue = Molecules::Libraries::Residue
-      Particle = Constants::Libraries::Particle
       
       HYDROGEN = EmpiricalFormula.parse("H")
       HYDROXIDE = EmpiricalFormula.parse("OH")
@@ -94,6 +118,9 @@ module Ms
       # The c-terminal modification (default OH)
       attr_reader :cterm
       
+      # The electron mass used in the calculation of proton_mass.
+      attr_reader :electron_mass
+      
       # An optional block used to calculate masses of molecules.
       attr_reader :block
       
@@ -101,20 +128,22 @@ module Ms
       attr_reader :ladder
       attr_reader :residue_locations
     
-      # Initializes a new FragmentSequence, using the specified n- and c-terminal modifications.  
-      # Masses will be calculated using the block, if specified.  If no block is specified, then the
-      # masses will be calculated as monoisoptopic masses by default.
-      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, &block)
+      # Initializes a new Spectrum, using the specified n- and c-terminal
+      # modifications.  Masses will be calculated using the block, if
+      # specified.  If no block is specified, then the monoisoptopic
+      # masses will be used.
+      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, electron_mass=ELECTRON.mass, &block)
         @sequence = sequence
         @nterm = nterm
         @cterm = cterm
+        @electron_mass = electron_mass
         @block = block
 
         @residue_masses = Residue.residue_index.collect do |residue| 
           next(0) if residue == nil
           mass(residue)
         end
-        @ladder, @residue_locations = InSilico.fragment_scan(sequence, residue_masses, self.class.residues_to_locate)
+        @ladder, @residue_locations = self.class.scan(sequence, residue_masses)
 
         @series_hash = {}
         @series_mask = {}
@@ -127,13 +156,13 @@ module Ms
     
       # Returns the mass of a proton (ie Hydrogen minus an Electron)
       def proton_mass
-        mass(HYDROGEN) - ELECTRON.mass
+        mass(HYDROGEN) - electron_mass
       end
     
       # Retrieves the specfied series, assuming a charge of 1.  A different charge 
       # can be specified for the series by using '+' and '-'.  For example:
       #
-      #   f = FragmentSpectrum.new 'RPPGFSPFR' 
+      #   f = Spectrum.new 'RPPGFSPFR' 
       #   f.series('y') ==  f.y_series                                   # => true
       #   f.series('b++') ==  f.b_series(2)                          # => true
       #   f.series('nladder-') ==  f.nladder_series(-1)     # => true
