@@ -132,18 +132,23 @@ module Ms
       # modifications.  Masses will be calculated using the block, if
       # specified.  If no block is specified, then the monoisoptopic
       # masses will be used.
-      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, electron_mass=ELECTRON.mass, &block)
+      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, residue_masses=nil, electron_mass=ELECTRON.mass, &block)
         @sequence = sequence
         @nterm = nterm
         @cterm = cterm
         @electron_mass = electron_mass
         @block = block
 
-        @residue_masses = Residue.residue_index.collect do |residue| 
-          next(0) if residue == nil
-          mass(residue)
+        @residue_masses = if residue_masses == nil
+          Residue.residue_index.collect do |residue| 
+            next(0) if residue == nil
+            mass(residue)
+          end
+        else
+          residue_masses
         end
-        @ladder, @residue_locations = self.class.scan(sequence, residue_masses)
+        
+        @ladder, @residue_locations = self.class.scan(sequence, @residue_masses)
 
         @series_hash = {}
         @series_mask = {}
@@ -310,6 +315,7 @@ module Ms
         case molecule
         when EmpiricalFormula then molecule.mass(&block)
         when nil then 0
+        when Numeric then molecule
         else EmpiricalFormula.mass(molecule, &block)
         end
       end
