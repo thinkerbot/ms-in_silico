@@ -2,6 +2,7 @@ require 'ms/in_silico/spectrum'
 
 module Ms
   module InSilico
+    
     # Ms::InSilico::Fragment::manifest calculates a theoretical ms/ms spectrum
     #
     # Calculates a theoretical ms/ms spectrum from a peptide sequence.
@@ -28,6 +29,9 @@ module Ms
     #       - 699.367180941891
     #
     class Fragment < Tap::Task
+      
+      # A block to validate a config input
+      # is an EmpericalFormula.
       MOLECULE = lambda do |value|
         case value
         when Molecules::EmpiricalFormula then value
@@ -38,12 +42,9 @@ module Ms
       config :series, ['y', 'b'], &c.array   # a list of the series to include
       config :charge, 1, &c.integer          # the charge for the parent ion
       config :intensity, nil, &c.num_or_nil  # a uniform intensity value
-      config :nterm, 'H', &MOLECULE
-      config :cterm, 'OH', &MOLECULE
-      
-      def spectrum(peptide)
-        Spectrum.new(peptide, nterm, cterm)
-      end
+      config :nterm, 'H', &MOLECULE          # the n-terminal modification
+      config :cterm, 'OH', &MOLECULE         # the c-terminal modification
+      config :sort, true, &c.switch          # sorts the data by mass
       
       def process(peptide)
         log :fragment, peptide
@@ -51,10 +52,20 @@ module Ms
         
         masses = []
         series.each {|s| masses.concat(spec.series(s)) }
+        masses.sort! if sort
         masses.collect! {|m| [m, intensity] } if intensity
         
         [spec.parent_ion_mass(charge), masses]
       end
+      
+      protected
+      
+      # Returns a new Spectrum used in the calculation.
+      # Primarily a hook for custom spectra in subclasses.
+      def spectrum(peptide)
+        Spectrum.new(peptide, nterm, cterm)
+      end
+      
     end 
   end
 end
