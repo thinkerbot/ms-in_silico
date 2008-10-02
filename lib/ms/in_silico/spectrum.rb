@@ -5,60 +5,75 @@ require 'ms/in_silico'
 module Ms
   module InSilico
 
-    # Spectrum calculates the theoretical masses for ions produced by
-    # fragmenting a peptide sequence in a process such as CID (collision induced 
-    # disocciation).  The formula used to calculate ions for the various ion 
-    # series were obtained from the MatrixScience 
-    # website[http://www.matrixscience.com/help/fragmentation_help.html]
-    # and have been validated against sample spectra from 
-    # Mascot[http://www.matrixscience.com/] as well as 
-    # ProteinProspector[http://prospector.ucsf.edu/].  One exception is listed
-    # under Known Issues, below.
+    # Spectrum calculates the theoretical ion series produced by a fragmentation
+    # process such as collision induced disocciation (CID).  The formula used to
+    # calculate the ion series were obtained from the {Matrix Science 
+    # website}[http://www.matrixscience.com/].
     # 
-    # == Formulae to Calculate Fragment Ion m/z values
+    # ==== Formulae to Calculate Fragment Ion m/z values
     # 
-    # *Copied directly from {http://www.matrixscience.com/help/fragmentation_help.html}[http://www.matrixscience.com/help/fragmentation_help.html]*
+    # <em>Copied directly from the Matrix Science {fragmentation help 
+    # section}[http://www.matrixscience.com/help/fragmentation_help.html]</em>
+    # 
+    #   [N] is the molecular mass of the neutral N-terminal group, [C] is the
+    #   molecular mass of the neutral C-terminal group, [M] is molecular mass
+    #   of the neutral amino acid residues. To obtain m/z values, add or 
+    #   subtract protons as required to obtain the required charge and divide
+    #   by the number of charges. For example, to get a+, add 1 proton to the
+    #   Mr value for a.  To get a--, subtract 2 protons from the Mr value for
+    #   a and divide by 2. 
     #
-    # [N] is the molecular mass of the neutral N-terminal group, [C] is the molecular mass of the 
-    # neutral C-terminal group, [M] is molecular mass of the neutral amino acid residues. To 
-    # obtain m/z values, add or subtract protons as required to obtain the required charge and 
-    # divide by the number of charges. For example, to get a+, add 1 proton to the Mr value for a. 
-    # To get a--, subtract 2 protons from the Mr value for a and divide by 2. 
+    #    Ion Type  Neutral Mr
+    #    a         [N]+[M]-CHO
+    #    a*        a-NH3
+    #    a°        a-H2O
+    #    b         [N]+[M]-H
+    #    b*        b-NH3
+    #    b°        b-H2O
+    #    c         [N]+[M]+NH2
+    #    d         a - partial side chain
+    #    v         y - complete side chain
+    #    w         z - partial side chain
+    #    x         [C]+[M]+CO-H
+    #    y         [C]+[M]+H
+    #    y*        y-NH3
+    #    y°        y-H2O
+    #    z         [C]+[M]-NH2
     #
-    #  Ion Type:: 	Neutral Mr
-    #  a:: 	[N]+[M]-CHO
-    #  a*:: 	a-NH3
-    #  a°:: 	a-H2O
-    #  b:: 	[N]+[M]-H
-    #  b*:: 	b-NH3
-    #  b°:: 	b-H2O
-    #  c:: 	[N]+[M]+NH2
-    #  d:: 	a - partial side chain
-    #  v:: 	y - complete side chain
-    #  w:: 	z - partial side chain
-    #  x:: 	[C]+[M]+CO-H
-    #  y:: 	[C]+[M]+H
-    #  y*:: 	y-NH3
-    #  y°:: 	y-H2O
-    #  z:: 	[C]+[M]-NH2
+    # ==== Use of alternate masses
+    # By default a Spectrum will calculate the ion series' using the
+    # monoisotopic masses for each element.  To calculate masses
+    # differently, provide a block to new; each Element will be
+    # passed to the block as needed, and the block should return
+    # the element mass used in the calculation.
+    #
+    # Alternatively, a subclass can override the mass method; all
+    # objects that need to be turned into a mass (nterm, cterm, 
+    # a variety of molecules specified as strings, the elements,
+    # ELECTRON, etc) are passed to mass to yield the value used
+    # in any given calculation.
     #
     #--
     # ALL of the collections could be sped up using inline
     #++
     class Spectrum
-      EmpiricalFormula = Molecules::EmpiricalFormula
-      Residue = Molecules::Libraries::Residue
-      Particle = Constants::Libraries::Particle
+      include Molecules
+      include Molecules::Libraries
+      include Constants::Libraries
       
       class << self
-        attr_reader :residues_to_locate
-      
+        
         def inherited(base)
           base.instance_variable_set(:@residues_to_locate, @residues_to_locate.dup)
         end
       
-        # Specifies which residues to locate when initializing a Spectrum.
-        # Most useful in subclasses.
+        # A string of residues located by scan.
+        attr_accessor :residues_to_locate
+      
+        # Adds residues to residues_to_locate (these residues
+        # will be located by scan).  Generally used when some
+        # special fragmentation behavior occurs at specific
+        # residues.  By default no residues are located.
         #
         #   class Subclass < Spectrum
         #     locate_residues "PS"
@@ -67,25 +82,36 @@ module Ms
         #   Subclass.new('RPPGFSPFR').residue_locations  
         #   # => {'P' => [1, 2, 6], 'S' => [5]}
         #
-        # Calls to locate_residues are cumulative.  To reset located residues, use
-        # reset_locate_residues.
+        # Calls to locate_residues are cumulative.
         def locate_residues(residues)
           @residues_to_locate += residues
         end
-      
-        # Resets locate_residues such that no residues will be located.
-        def reset_locate_residues
-          @residues_to_locate = ""
-        end
         
-        def scan(sequence, masses, residues=residues_to_locate)
+        # Scans the sequence to produce a ladder of masses and a
+        # hash of (residue, locations) pairs which indicate the
+        # indicies at which the residue occurs in sequence. The
+        # ladder corresponds to the M values described above.
+        #  
+        # Returns [ladder, {residue => locations}].
+        #
+        # ==== Inputs
+        # sequence:: a string
+        # masses_by_byte:: an array of masses where the index of 
+        #                  the mass is the byte of the
+        #                  corresponding residue.
+        # residues_to_locate:: a string of the residues to locate.
+        #
+        # Note: scan is an optimized utility function, but should
+        # be replaced by an inline function to do the same.
+        #
+        def scan(sequence, masses_by_byte, residues_to_locate)
           locations = []
-          residues.each_byte {|byte| locations[byte] = []}
+          residues_to_locate.each_byte {|byte| locations[byte] = []}
 
           mass = 0
           ladder = []
           sequence.each_byte do |byte|
-            mass += masses[byte]
+            mass += masses_by_byte[byte]
             location = locations[byte]
 
             location << ladder.length if location
@@ -93,8 +119,8 @@ module Ms
           end
 
           hash = {}
-          0.upto(residues.length-1) do |index|
-            letter = residues[index, 1]
+          0.upto(residues_to_locate.length-1) do |index|
+            letter = residues_to_locate[index, 1]
             byte = letter[0]
             hash[letter] = locations[byte]
           end
@@ -107,9 +133,9 @@ module Ms
       HYDROXIDE = EmpiricalFormula.parse("OH")
       ELECTRON = Particle['Electron']
       
-      reset_locate_residues
+      self.residues_to_locate = ""
       
-      # The peptide sequence 
+      # The peptide sequence.
       attr_reader :sequence
       
       # The n-terminal modification (default H)
@@ -121,26 +147,34 @@ module Ms
       # An optional block used to calculate masses of molecules.
       attr_reader :block
       
-      attr_reader :residue_masses
+      # A ladder of mass values corresponding to the
+      # M values used in the fragmentation formulae.
       attr_reader :ladder
+      
+      # A hash of (residue, [locations]) pairs where
+      # the locations are the indicies in sequence
+      # at which residue occurs.
       attr_reader :residue_locations
     
-      # Initializes a new Spectrum, using the specified n- and c-terminal
+      # Initializes a new Spectrum using the specified n- and c-terminal
       # modifications.  Masses will be calculated using the block, if
       # specified.  If no block is specified, then the monoisoptopic
       # masses will be used.
-      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, &block)
+      def initialize(sequence, nterm=HYDROGEN, cterm=HYDROXIDE, &block) # :yields: element
         @sequence = sequence
         @nterm = nterm
         @cterm = cterm
         @block = block
 
-        @residue_masses = Residue.residue_index.collect do |residue| 
+        residue_masses = Residue.residue_index.collect do |residue| 
           next(0) if residue == nil
           mass(residue)
         end
         
-        @ladder, @residue_locations = self.class.scan(sequence, residue_masses)
+        @ladder, @residue_locations = self.class.scan(
+          sequence, 
+          residue_masses, 
+          self.class.residues_to_locate)
 
         @series_hash = {}
         @series_mask = {}
@@ -160,8 +194,8 @@ module Ms
       # can be specified for the series by using '+' and '-'.  For example:
       #
       #   f = Spectrum.new 'RPPGFSPFR' 
-      #   f.series('y') ==  f.y_series                                   # => true
-      #   f.series('b++') ==  f.b_series(2)                          # => true
+      #   f.series('y') ==  f.y_series                      # => true
+      #   f.series('b++') ==  f.b_series(2)                 # => true
       #   f.series('nladder-') ==  f.nladder_series(-1)     # => true
       #
       # Series raises an error if the specified charge is zero.
@@ -301,9 +335,20 @@ module Ms
       # by the series type (ex: b, y).  
       attr_accessor :series_mask
     
-      # Calculates the mass of the molecule, which may be an EmpiricalFormula,
-      # a string, or nil (for which the mass is 0).
+      # Calculates the mass of the molecule for a variety of input
+      # types:
+      #
+      #   EmpiricalFormula   molecule.mass(&block)
+      #   Particle           molecule.mass
+      #   String             EmpiricalFormula.mass(molecule, &block)
+      #   Numeric            molecule
+      #   nil                0
+      #
       def mass(molecule)
+        
+        # note that Particles will not actually make use of the
+        # block, even though it is being passed to it.
+        
         case molecule
         when EmpiricalFormula, Particle then molecule.mass(&block)
         when String then EmpiricalFormula.mass(molecule, &block)
@@ -350,15 +395,15 @@ module Ms
       end
     
       # Retrieves the series keyed by "#{key}#{charge}" in series_hash.
-      # If the series has not been initialized, the series will be initialized
-      # using the supplied block, and masked using the series_mask
-      # indicated by key (not "#{key}#{charge}").
+      # If the series has not been initialized, the series will be 
+      # initialized using the supplied block, and masked using the 
+      # series_mask indicated by key (not "#{key}#{charge}").
       def get_series(key, charge=nil, mod=nil)
         series_hash["#{key}#{charge}#{mod}"] ||= mask(yield, key, mod)
       end
     
-      # Mask the locations in the series by multiplying them by -1.  Mask does
-      # NOT check to see if the location is negative or positive. 
+      # Mask the locations in the series by multiplying them by -1.  Mask
+      # does NOT check to see if the location is negative or positive. 
       def mask(series, key, mod)
         locations = series_mask[key]
       
@@ -377,7 +422,7 @@ module Ms
       # Hook to custom-handle an unknown series from the series method.
       # By default, handle_unknown_series raises an ArgumentError.
       def handle_unknown_series(s)
-        raise ArgumentError.new("unknown series: #{s}")
+        raise ArgumentError, "unknown series: #{s}"
       end
     end
   end

@@ -31,16 +31,6 @@ class SpectrumTest < Test::Unit::TestCase
     assert_equal "PSRG", Cumulative.residues_to_locate
   end
   
-  class Reset < Spectrum
-    locate_residues "PS"
-  end
-
-  def test_reset_locate_residues_resets_residues_to_locate
-    assert_equal "PS", Reset.residues_to_locate
-    Reset.reset_locate_residues
-    assert_equal "", Reset.residues_to_locate
-  end
-
   #
   # series test
   #

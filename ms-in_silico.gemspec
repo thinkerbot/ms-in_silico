@@ -21,7 +21,9 @@ Gem::Specification.new do |s|
   # check this manifest using 'rake :print_manifest'
   s.files = %W{
     lib/ms/in_silico.rb
+    lib/ms/in_silico/digest.rb
     lib/ms/in_silico/digester.rb
-    lib/ms/in_silico/fragment_spectrum.rb
+    lib/ms/in_silico/fragment.rb
+    lib/ms/in_silico/spectrum.rb
   }
 end
