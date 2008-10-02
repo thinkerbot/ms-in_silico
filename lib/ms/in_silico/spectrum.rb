@@ -8,8 +8,29 @@ module Ms
     # Spectrum calculates the theoretical ion series produced by a fragmentation
     # process such as collision induced disocciation (CID).  The formula used to
     # calculate the ion series were obtained from the {Matrix Science 
-    # website}[http://www.matrixscience.com/].
+    # website}[http://www.matrixscience.com/].  Spectrum uses the 
+    # {Constants}[http://bioactive.rubyforge.org/constants/] gem as the default
+    # source of element and particle masses.
     # 
+    #   spec = Ms::InSilico::Spectrum.new('TVQQEL')
+    #   spec.series('b')
+    #   # => [
+    #   # 102.054954926291,
+    #   # 201.123368842491,
+    #   # 329.181946353891,
+    #   # 457.240523865291,
+    #   # 586.283116961491,
+    #   # 699.367180941891]
+    #
+    #   spec.series('y')
+    #   # => [
+    #   # 717.377745628191,
+    #   # 616.330067154091,
+    #   # 517.261653237891,
+    #   # 389.203075726491,
+    #   # 261.144498215091,
+    #   # 132.101905118891]
+    #
     # ==== Formulae to Calculate Fragment Ion m/z values
     # 
     # <em>Copied directly from the Matrix Science {fragmentation help 
@@ -238,7 +259,7 @@ module Ms
         end
       end
     
-      # [N]+[M]-CHO
+      #   [N]+[M]-CHO
       def a_series(charge=1, mod=nil)
         get_series(:a, charge, mod) do
           delta = mass(mod) + mass(nterm) - mass('CHO') + charge * proton_mass
@@ -246,7 +267,7 @@ module Ms
         end
       end
 
-      # [N]+[M]-H
+      #   [N]+[M]-H
       def b_series(charge=1, mod=nil)
         get_series(:b, charge, mod) do
           delta = mass(mod) + mass(nterm) - mass('H') + charge * proton_mass
@@ -254,7 +275,7 @@ module Ms
         end
       end
 
-      # [N]+[M]+NH2
+      #   [N]+[M]+NH2
       def c_series(charge=1, mod=nil)
         get_series(:c, charge, mod) do
           delta = mass(mod) + mass(nterm) + mass('NH2') + charge * proton_mass
@@ -262,7 +283,7 @@ module Ms
         end
       end
 
-      # [M] + H20
+      #   [M]+H20
       #--
       # Ask Peter about these as well... Currently I'm adding water to
       # cap the ends, as if a hydrolysis reaction produced the ladder,
@@ -276,7 +297,7 @@ module Ms
         end
       end
 
-      #  [C]+[M]+CO-H
+      #   [C]+[M]+CO-H
       def x_series(charge=1, mod=nil)
         get_series(:x, charge, mod) do 
           delta = mass(mod) + ladder.last + mass(cterm) + mass('CO - H') + charge * proton_mass
@@ -284,7 +305,7 @@ module Ms
         end
       end
 
-      # [C]+[M]+H
+      #   [C]+[M]+H
       def y_series(charge=1, mod=nil)
         get_series(:y, charge, mod) do
           delta = mass(mod) + ladder.last + mass(cterm) + mass('H') + charge * proton_mass
@@ -292,7 +313,7 @@ module Ms
         end
       end
 
-      # [C]+[M]-H
+      #   [C]+[M]-H
       def Y_series(charge=1, mod=nil)
         get_series(:Y, charge, mod) do
           delta = mass(mod) + ladder.last + mass(cterm) - mass('H') + charge * proton_mass
@@ -300,7 +321,7 @@ module Ms
         end
       end
 
-      # [C]+[M]-NH2
+      #   [C]+[M]-NH2
       def z_series(charge=1, mod=nil)
         get_series(:z, charge, mod) do
           delta = mass(mod) + ladder.last + mass(cterm) - mass('NH2') + charge * proton_mass
@@ -308,7 +329,7 @@ module Ms
         end
       end
 
-      # [M] + H20
+      #   [M]+H20
       #--
       # Ask Peter about these as well... Currently I'm adding water to
       # cap the ends, as if a hydrolysis reaction produced the ladder,
