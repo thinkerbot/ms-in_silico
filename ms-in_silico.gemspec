@@ -13,12 +13,11 @@ Gem::Specification.new do |s|
   s.add_dependency("tap", "~> 0.10.2")
   s.add_dependency("molecules", "~> 0.1.0")
   
-  # list extra rdoc files like README here.
   s.extra_rdoc_files = %W{
+    README
+    MIT-LICENSE
   }
   
-  # list the files you want to include here. you can
-  # check this manifest using 'rake :print_manifest'
   s.files = %W{
     lib/ms/in_silico.rb
     lib/ms/in_silico/digest.rb
