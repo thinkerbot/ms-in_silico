@@ -25,10 +25,7 @@ module Ms
           raise ArgumentError, "unknown digester: #{digester}" 
         end
         
-        peptides = site_digest ? 
-          d.site_digest(sequence, max_misses): 
-          d.digest(sequence, max_misses).collect {|fragment, start_index, end_index| fragment}
-        
+        peptides = site_digest ? d.site_digest(sequence, max_misses): d.digest(sequence, max_misses)
         log 'digest', "#{sequence[0..10]}#{sequence.length > 10 ? '...' : ''} to #{peptides.length} peptides"
         peptides
       end

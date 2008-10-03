@@ -6,6 +6,7 @@ class DigesterTest < Test::Unit::TestCase
   acts_as_subset_test
   
   attr_accessor :digester
+  
   def setup
     @digester = Digester.new('arg', 'R')
   end
@@ -32,17 +33,57 @@ class DigesterTest < Test::Unit::TestCase
   end
   
   #
-  # fragment_sites
+  # documentation test
   #
   
-  def test_fragment_sites_documentation
-    d = Digester.new('trypsin', 'KR', 'P')
-    assert_equal [0, 1, 4], d.fragment_sites("RGGR")
-    assert_equal [0, 9], d.fragment_sites("RPPGFSPFR")
-    assert_equal [0, 3, 8, 16, 19], d.fragment_sites("..K..RPR..K\nPK\n\s...")
+  def test_documenation
+    trypsin = Digester['Trypsin']
+    
+    expected = [
+    'MIVIGR',
+    'SIVHPYITNEYEPFAAEK',
+    'QQILSIMAG']
+    assert_equal expected, trypsin.digest('MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG')
+    
+    expected =  [
+    'MIVIGR',
+    'MIVIGRSIVHPYITNEYEPFAAEK',
+    'SIVHPYITNEYEPFAAEK',
+    'SIVHPYITNEYEPFAAEKQQILSIMAG',
+    'QQILSIMAG']
+    assert_equal expected, trypsin.digest('MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG', 1)
+    
+    expected = [
+    [0,6],
+    [0,24],
+    [6,24],
+    [6,33],
+    [24,33]]
+    assert_equal expected, trypsin.site_digest('MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG', 1)
   end
   
-  def test_fragment_sites
+  #
+  # cleavage_sites
+  #
+  
+  def test_cleavage_sites_documentation
+    d = Digester.new('Trypsin', 'KR', 'P')
+    seq = "AARGGR"
+    sites = d.cleavage_sites(seq)
+    assert_equal [0, 3, 6], sites
+    
+    assert_equal "AAR", seq[sites[0], sites[0+1] - sites[0]]
+    assert_equal "GGR", seq[sites[1], sites[1+1] - sites[1]]
+    
+    seq = "AAR  \n  GGR"
+    sites = d.cleavage_sites(seq)
+    assert_equal [0, 8, 11], sites
+
+    assert_equal "AAR  \n  ", seq[sites[0], sites[0+1] - sites[0]]
+    assert_equal "GGR", seq[sites[1], sites[1+1] - sites[1]]
+  end
+  
+  def test_cleavage_sites
     {
       "" => [0,0],
       "A" => [0,1],
@@ -58,11 +99,11 @@ class DigesterTest < Test::Unit::TestCase
       "R\nR\nR" => [0,2,4,5],
       "R\n\n\nR\nR\n\n" => [0,4,6,9]
    }.each_pair  do |sequence, expected|
-      assert_equal expected, digester.fragment_sites(sequence), sequence
+      assert_equal expected, digester.cleavage_sites(sequence), sequence
     end
   end
 
-  def test_fragment_sites_with_exception
+  def test_cleavage_sites_with_exception
     @digester = Digester.new('argp', 'R', 'P')
     {
       "" => [0,0],
@@ -88,28 +129,28 @@ class DigesterTest < Test::Unit::TestCase
       "RP\nR\nR" => [0,5,6],
       "RP\nR\nR\n" => [0,5,7]
     }.each_pair  do |sequence, expected|
-      assert_equal expected, digester.fragment_sites(sequence), sequence
+      assert_equal expected, digester.cleavage_sites(sequence), sequence
     end
   end
   
-  def test_fragment_sites_with_offset_and_limit
+  def test_cleavage_sites_with_offset_and_limit
     {
       "RxxR" => [2,4],
       "RxAxR" => [2,4],
       "RxAAAxR" => [2,4],
       "RxRRRxR" => [2,3,4]
     }.each_pair do |sequence, expected|
-      assert_equal expected, digester.fragment_sites(sequence, 2, 2), sequence
+      assert_equal expected, digester.cleavage_sites(sequence, 2, 2), sequence
     end
   end
   
-  def test_fragment_sites_speed
+  def test_cleavage_sites_speed
     benchmark_test(20) do |x|
       str = nk_string(10, 1000)
-       assert_equal 11, digester.fragment_sites(str).length
+       assert_equal 11, digester.cleavage_sites(str).length
       
       x.report("10kx - fragments") do 
-        10000.times { digester.fragment_sites(str) }
+        10000.times { digester.cleavage_sites(str) }
       end
     end
   end
