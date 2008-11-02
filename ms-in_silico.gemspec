@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.test_file = "test/tap_test_suite.rb"
   #s.rubyforge_project = "ms-in_silico"
   s.has_rdoc = true
-  s.add_dependency("tap", "~> 0.10.2")
-  s.add_dependency("molecules", "~> 0.1.0")
+  s.add_dependency("tap", ">= 0.11")
+  s.add_dependency("molecules", ">= 0.1.0")
   
   s.extra_rdoc_files = %W{
     README
