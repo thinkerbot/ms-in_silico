@@ -1,6 +1,6 @@
-= Ms-InSilico
+= {Ms-InSilico}[http://mspire.rubyforge.org/ms-in_silico]
 
-A library supporting in-silico calculations for mass spec data.
+An {Mspire}[http://mspire.rubyforge.org] library supporting in-silico calculations for mass spec data.
 
 == Description
 
@@ -9,11 +9,13 @@ Ms-InSilico provides the following modules:
 * Ms::InSilico::Digester (protein digestion)
 * Ms::InSilico::Spectrum (peptide fragmentation)
 
-Corresponding Tap[http://tap.rubyforge.org] tasks are also provided.
+Corresponding Tap[http://tap.rubyforge.org] tasks are also provided.  
+
+* Lighthouse[http://bahuvrihi.lighthouseapp.com/projects/16692-mspire/tickets]
+* Github[http://github.com/bahuvrihi/ms-in_silico/tree/master]
+* {Google Group}[http://groups.google.com/group/mspire-forum?lnk=gcimh]
 
 == Usage
-
-Just as an example:
 
   require 'ms/in_silico/digester'
   require 'ms/in_silico/spectrum'
@@ -38,7 +40,13 @@ Just as an example:
   # 457.284302935391,
   # 514.305766658991,
   # 670.406877687091]
-  
+
+== Installation
+
+Ms-InSilico is available as a gem on RubyForge[http://rubyforge.org/projects/mspire].  Use:
+
+  % gem install ms-in_silico
+
 == Info 
 
 Copyright (c) 2006-2008, Regents of the University of Colorado.

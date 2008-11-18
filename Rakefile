@@ -70,6 +70,20 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.options << '--fmt' << 'tdoc'
 end
 
+desc "Publish RDoc to RubyForge"
+task :publish_rdoc => [:rdoc] do
+  require 'yaml'
+  
+  config = YAML.load(File.read(File.expand_path("~/.rubyforge/user-config.yml")))
+  host = "#{config["username"]}@rubyforge.org"
+  
+  rsync_args = "-v -c -r"
+  remote_dir = "/var/www/gforge-projects/mspire/ms-in_silico"
+  local_dir = "rdoc"
+ 
+  sh %{rsync #{rsync_args} #{local_dir}/ #{host}:#{remote_dir}}
+end
+
 #
 # Test tasks
 #
