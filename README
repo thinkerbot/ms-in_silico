@@ -1,4 +1,4 @@
-= {Ms-InSilico}[http://mspire.rubyforge.org/ms-in_silico]
+= {Ms-InSilico}[http://mspire.rubyforge.org/projects/ms-in_silico]
 
 An {Mspire}[http://mspire.rubyforge.org] library supporting in-silico calculations for mass spec data.
 
@@ -13,7 +13,7 @@ Corresponding Tap[http://tap.rubyforge.org] tasks are also provided.
 
 * Lighthouse[http://bahuvrihi.lighthouseapp.com/projects/16692-mspire/tickets]
 * Github[http://github.com/bahuvrihi/ms-in_silico/tree/master]
-* {Google Group}[http://groups.google.com/group/mspire-forum?lnk=gcimh]
+* {Google Group}[http://groups.google.com/group/mspire-forum]
 
 == Usage
 

@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.version = "0.0.1"
   s.author = "Simon Chiang"
   s.email = "simon.a.chiang@gmail.com"
-  s.homepage = "http://mspire.rubyforge.org/ms-in_silico/"
+  s.homepage = "http://mspire.rubyforge.org/projects/ms-in_silico/"
   s.platform = Gem::Platform::RUBY
   s.summary = "ms-in_silico task library"
   s.require_path = "lib"
