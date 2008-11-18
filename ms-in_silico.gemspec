@@ -24,5 +24,6 @@ Gem::Specification.new do |s|
     lib/ms/in_silico/digester.rb
     lib/ms/in_silico/fragment.rb
     lib/ms/in_silico/spectrum.rb
+    tap.yml
   }
 end
