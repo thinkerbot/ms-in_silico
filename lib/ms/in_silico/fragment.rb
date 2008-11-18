@@ -46,6 +46,7 @@ module Ms
       config :nterm, 'H', &MOLECULE          # the n-terminal modification
       config :cterm, 'OH', &MOLECULE         # the c-terminal modification
       config :sort, true, &c.switch          # sorts the data by mass
+      config :unmask, true, &c.switch        # remove masked (negative) masses
       
       def process(peptide)
         log :fragment, peptide
@@ -53,6 +54,7 @@ module Ms
         
         masses = []
         series.each {|s| masses.concat(spec.series(s)) }
+        masses.delete_if {|m| m < 0 } if unmask
         masses.sort! if sort
         masses.collect! {|m| [m, intensity] } if intensity
         
