@@ -9,7 +9,7 @@ module Ms
     # peptide sequence.  Configurations allow the specification of one or 
     # more fragmentation series to include, as well as charge, and intensity.
     #
-    #   % rap predict TVQQEL --+ dump --no-audit
+    #   % rap fragment TVQQEL --+ dump --no-audit
     #   # date: 2008-09-15 14:37:55
     #   --- 
     #   ms/in_silico/fragment (:...:): 
