@@ -112,6 +112,9 @@ module Ms
         # hash of (residue, locations) pairs which indicate the
         # indicies at which the residue occurs in sequence. The
         # ladder corresponds to the M values described above.
+        # Characters in the sequence that do not add mass, such
+        # as whitespace, are skipped and do not add an entry to
+        # the ladder.
         #  
         # Returns [ladder, {residue => locations}].
         #
@@ -132,10 +135,14 @@ module Ms
           mass = 0
           ladder = []
           sequence.each_byte do |byte|
-            mass += masses_by_byte[byte]
-            location = locations[byte]
-
-            location << ladder.length if location
+            # check a mass is added... if not (as for whitespace) 
+            # then skip to the next byte
+            next if (mass == (mass += masses_by_byte[byte]))
+            
+            if location = locations[byte]
+              location << ladder.length
+            end
+            
             ladder << mass
           end
 

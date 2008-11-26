@@ -61,11 +61,17 @@ class SpectrumTest < Test::Unit::TestCase
     assert_raise(ArgumentError) { f.series 'q' }
   end
   
+  def test_sequences_may_contain_whitespace
+    s = Spectrum.new('SAMPLE')
+    s1 = Spectrum.new(" SA\n  MPL\t \rE  ")
+    assert_equal s.series('y'), s1.series('y')
+  end
+  
   #
   # benchmarks
   #
   
-  def test_initialize_speed
+  def test_fragment_speed
     benchmark_test(20) do |x|
       x.report("1k RPPGFSPFR * 10") { 1000.times { Spectrum.new("RPPGFSPFR" * 10) } }
     end

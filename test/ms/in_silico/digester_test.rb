@@ -63,6 +63,18 @@ class DigesterTest < Test::Unit::TestCase
   end
   
   #
+  # misc tests
+  #
+  
+  def test_digest_ignores_whitespace
+    expected = [
+    "\tMIVIGR",
+    "SIVHP\nYITNEYEPFAAE K",
+    "QQILSI\rMAG"]
+    assert_equal expected, Digester['Trypsin'].digest("\tMIVIGRSIVHP\nYITNEYEPFAAE KQQILSI\rMAG")
+  end
+  
+  #
   # cleavage_sites
   #
   
@@ -193,7 +205,6 @@ class DigesterTest < Test::Unit::TestCase
     end
   end
   
-    
   def test_digest_with_two_missed_cleavages
     {
       "" => [''],
