@@ -7,7 +7,7 @@ class Ms::InSilico::FragmentTest < Test::Unit::TestCase
   def test_fragment_documentation
     script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
       cmd.check "documentation", %q{
-% rap fragment TVQQEL --+ dump --no-audit
+% tap run -- fragment TVQQEL --+ dump --no-audit
   I[:...:]           fragment TVQQEL
 # date: :...:
 --- 

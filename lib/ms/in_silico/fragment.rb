@@ -40,7 +40,7 @@ module Ms
         end
       end
       
-      config :series, ['y', 'b'], &c.array   # a list of the series to include
+      config :series, ['y', 'b'], &c.list    # a list of the series to include
       config :charge, 1, &c.integer          # the charge for the parent ion
       config :intensity, nil, &c.num_or_nil  # a uniform intensity value
       config :nterm, 'H', &MOLECULE          # the n-terminal modification
