@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-in_silico"
-  s.version = "0.2.0"
+  s.version = "0.2.1"
   s.author = "Simon Chiang"
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-in_silico/"
@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = %W{
     README
     MIT-LICENSE
+    History
   }
   
   s.files = %W{
