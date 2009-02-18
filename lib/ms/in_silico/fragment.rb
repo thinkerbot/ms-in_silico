@@ -5,30 +5,34 @@ module Ms
     
     # Ms::InSilico::Fragment::manifest calculates a theoretical ms/ms spectrum
     #
-    # Calculates the parent ion mass and theoretical ms/ms spectrum for a 
-    # peptide sequence.  Configurations allow the specification of one or 
-    # more fragmentation series to include, as well as charge, and intensity.
+    # Calculates the theoretical ms/ms spectrum for a peptide sequence.
+    # Configurations allow the specification of one or more fragmentation series
+    # to include, as well as charge, and intensity.
     #
     #   % rap fragment TVQQEL --+ dump --no-audit
     #   # date: 2008-09-15 14:37:55
-    #   --- 
-    #   ms/in_silico/fragment (:...:): 
-    #   - - 717.377745628191
-    #     - - 102.054954926291
-    #       - 132.101905118891
-    #       - 201.123368842491
-    #       - 261.144498215091
-    #       - 329.181946353891
-    #       - 389.203075726491
-    #       - 457.240523865291
-    #       - 517.261653237891
-    #       - 586.283116961491
-    #       - 616.330067154091
-    #       - 699.367180941891
-    #       - 717.377745628191
+    #   - - 102.054954926291
+    #     - 132.101905118891
+    #     - 201.123368842491
+    #     - 261.144498215091
+    #     - 329.181946353891
+    #     - 389.203075726491
+    #     - 457.240523865291
+    #     - 517.261653237891
+    #     - 586.283116961491
+    #     - 616.330067154091
+    #     - 699.367180941891
+    #     - 717.377745628191
+    #   - :parent_ion_mass: 717.377745628191
+    #     :charge: 1
+    #     :series:
+    #     - y
+    #     - b
+    #     :nterm: H
+    #     :cterm: HO
     #
-    # In the output, the parent ion mass is given first, followed by an
-    # array of the sorted fragmentation data.
+    # In the output the sorted fragmentation data is given first, followed by
+    # a hash of header data, including the parent ion mass.
     class Fragment < Tap::Task
       
       # A block to validate a config input
@@ -48,6 +52,17 @@ module Ms
       config :sort, true, &c.switch          # sorts the data by mass
       config :unmask, true, &c.switch        # remove masked (negative) masses
       
+      # Constructs a hash of header data pertinent to the spectrum.
+      def headers(spec)
+        {
+          :charge => charge,
+          :parent_ion_mass => spec.parent_ion_mass(charge),
+          :series => series,
+          :nterm => spec.nterm.to_s,
+          :cterm => spec.cterm.to_s
+        }
+      end
+      
       def process(peptide)
         log :fragment, peptide
         spec = spectrum(peptide)
@@ -58,7 +73,7 @@ module Ms
         masses.sort! if sort
         masses.collect! {|m| [m, intensity] } if intensity
         
-        [spec.parent_ion_mass(charge), masses]
+        [masses, headers(spec)]
       end
       
       protected
