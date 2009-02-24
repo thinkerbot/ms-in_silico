@@ -5,7 +5,7 @@ module Ms
     # Ms::InSilico::Digest::manifest digest a protein sequence into peptides
     # Digest a protein sequence into an array of peptides.
     #
-    #   % rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --+ dump --no-audit
+    #   % rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --: dump --no-audit
     #     I[14:37:55]             digest MIVIGRSIVHP... to 3 peptides
     #   # date: 2008-09-15 14:37:55
     #   ---
