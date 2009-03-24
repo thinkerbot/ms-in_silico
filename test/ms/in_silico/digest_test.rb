@@ -7,13 +7,11 @@ class Ms::InSilico::DigestTest < Test::Unit::TestCase
   def test_digest_documentation
     script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
       cmd.check "documentation", %q{
-% tap run -- digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --: dump --no-audit
+% tap run -- digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --:i dump
   I[:...:]             digest MIVIGRSIVHP... to 3 peptides
-# date: :...:
---- 
-- - MIVIGR
-  - SIVHPYITNEYEPFAAEK
-  - QQILSIMAG
+MIVIGR
+SIVHPYITNEYEPFAAEK
+QQILSIMAG
 }
     end
   end
