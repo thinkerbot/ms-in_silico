@@ -37,10 +37,10 @@ QQILSIMAG
   end
   
   def test_process_skips_header_of_fasta_entries
-    assert_equal %w{
+    assert_equal %W{
       MIVIGR
-      SIVHPYITNEYEPFAAEK
+      SIVHPYITN\nEYEPFAAEK
       QQILSIMAG
-    }, d.process(">header\nMIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG")
+    }, d.process(">header\nMIVIGRSIVHPYITN\nEYEPFAAEKQQILSIMAG")
   end
 end
