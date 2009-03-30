@@ -5,14 +5,11 @@ module Ms
     # Ms::InSilico::Digest::manifest digest a protein sequence into peptides
     # Digest a protein sequence into an array of peptides.
     #
-    #   % rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --: dump --no-audit
+    #   % rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --:i dump
     #     I[14:37:55]             digest MIVIGRSIVHP... to 3 peptides
-    #   # date: 2008-09-15 14:37:55
-    #   ---
-    #   ms/in_silico/digest (23483900):
-    #   - - MIVIGR
-    #     - SIVHPYITNEYEPFAAEK
-    #     - QQILSIMAG
+    #   MIVIGR
+    #   SIVHPYITNEYEPFAAEK
+    #   QQILSIMAG
     #
     class Digest < Tap::Task
     
