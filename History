@@ -1,4 +1,4 @@
-== 
+== 0.2.3 / 2009-03-31
 
 * Digest now allows fasta entry inputs
 * added min/max length filters to digest
