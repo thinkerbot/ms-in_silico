@@ -1,6 +1,8 @@
-==
+== 
 
 * Digest now allows fasta entry inputs
+* added min/max length filters to digest
+* Digest removes whitespace from sequence
 * updates for latest Tap
 
 == 0.2.2 / 2009-02-24

@@ -14,7 +14,7 @@ module Ms
     class Digest < Tap::Task
     
       config :digester, 'Trypsin'                # The name of the digester
-      config :min_length, 3, &c.integer_or_nil   # Minimum peptide length
+      config :min_length, nil, &c.integer_or_nil # Minimum peptide length
       config :max_length, nil, &c.integer_or_nil # Maximum peptide length
       config :max_misses, 0, &c.integer          # The max # of missed cleavage sites
       config :site_digest, false, &c.boolean     # Digest to sites (rather than sequences)
@@ -26,6 +26,7 @@ module Ms
         
         # extract sequence from FASTA entries
         sequence = $1 if sequence =~ /\A>.*?\n(.*)\z/m
+        sequence.gsub!(/\s/, "")
         
         peptides = if site_digest 
           d.site_digest(sequence, max_misses)
