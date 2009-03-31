@@ -43,4 +43,13 @@ QQILSIMAG
       QQILSIMAG
     }, d.process(">header\nMIVIGRSIVHPYITN\nEYEPFAAEKQQILSIMAG")
   end
+  
+  def test_process_filters_on_min_max_length
+    d.min_length = 7
+    d.max_length = 10
+    assert_equal %w{
+      QQILSIMAG
+    }, d.process("MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG")
+  end
+  
 end
