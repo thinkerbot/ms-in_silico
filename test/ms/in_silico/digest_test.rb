@@ -3,7 +3,11 @@ require 'ms/in_silico/digest'
 
 class Ms::InSilico::DigestTest < Test::Unit::TestCase
   include Ms::InSilico
-  acts_as_script_test
+  acts_as_tap_test
+  acts_as_shell_test(
+    :cmd_pattern => '% ',
+    :env => {'TAP_GEMS' => ''}
+  )
   
   attr_accessor :d
   
@@ -13,15 +17,12 @@ class Ms::InSilico::DigestTest < Test::Unit::TestCase
   end
   
   def test_digest_documentation
-    script_test(File.dirname(__FILE__) +  "../../../../") do |cmd|
-      cmd.check "documentation", %q{
-% tap run -- digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --:i dump
-  I[:...:]             digest MIVIGRSIVHP... to 3 peptides
+    sh_test %q{
+% rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --:i dump
 MIVIGR
 SIVHPYITNEYEPFAAEK
 QQILSIMAG
 }
-    end
   end
   
   #

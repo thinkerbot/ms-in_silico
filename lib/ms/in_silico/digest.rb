@@ -1,12 +1,12 @@
+require 'tap/task'
 require 'ms/in_silico/digester'
 
 module Ms
   module InSilico
-    # Ms::InSilico::Digest::manifest digest a protein sequence into peptides
+    # :startdoc::task digest a protein sequence into peptides
     # Digest a protein sequence into an array of peptides.
     #
     #   % rap digest MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG --:i dump
-    #     I[14:37:55]             digest MIVIGRSIVHP... to 3 peptides
     #   MIVIGR
     #   SIVHPYITNEYEPFAAEK
     #   QQILSIMAG

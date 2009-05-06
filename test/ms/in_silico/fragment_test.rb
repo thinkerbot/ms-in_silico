@@ -2,10 +2,9 @@ require File.join(File.dirname(__FILE__), '../../tap_test_helper.rb')
 require 'ms/in_silico/fragment'
 
 class FragmentTest < Test::Unit::TestCase
-  acts_as_script_test 
-  acts_as_tap_test
   include Ms::InSilico
-  
+  acts_as_tap_test
+
   #
   # headers test
   #

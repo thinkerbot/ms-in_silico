@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-in_silico"
-  s.version = "0.2.3"
+  s.version = "0.2.4"
   s.author = "Simon Chiang"
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-in_silico/"
@@ -10,8 +10,9 @@ Gem::Specification.new do |s|
   s.test_file = "test/tap_test_suite.rb"
   s.rubyforge_project = "mspire"
   s.has_rdoc = true
-  s.add_dependency("tap", ">= 0.12.4")
-  s.add_dependency("molecules", ">= 0.1.0")
+  s.add_dependency("tap", ">= 0.17.0")
+  s.add_development_dependency("tap-test", ">= 0.1.0")
+  s.add_dependency("molecules", ">= 0.2.0")
   
   s.extra_rdoc_files = %W{
     README

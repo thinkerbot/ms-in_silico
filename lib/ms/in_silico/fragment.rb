@@ -1,9 +1,10 @@
+require 'tap/task'
 require 'ms/in_silico/spectrum'
 
 module Ms
   module InSilico
     
-    # :startdoc::manifest calculates a theoretical ms/ms spectrum
+    # :startdoc::task calculates a theoretical ms/ms spectrum
     #
     # Calculates the theoretical ms/ms spectrum for a peptide sequence.
     # Configurations allow the specification of one or more fragmentation series
