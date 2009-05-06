@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "ms-in_silico"
-  s.version = "0.2.4"
+  s.version = "0.3.0"
   s.author = "Simon Chiang"
   s.email = "simon.a.chiang@gmail.com"
   s.homepage = "http://mspire.rubyforge.org/projects/ms-in_silico/"
