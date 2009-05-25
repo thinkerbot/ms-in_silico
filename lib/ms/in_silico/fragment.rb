@@ -14,18 +14,20 @@ module Ms
     # a hash of header data, including the parent ion mass.
     class Fragment < Tap::Task
       
-      # A block to validate a config input
-      # is an EmpericalFormula.
-      MOLECULE = lambda do |value|
+      empirical_formula_block = lambda do |value|
         case value
         when Molecules::EmpiricalFormula then value
         else Molecules::EmpiricalFormula.parse(value)
         end
       end
       
+      # A block to validate a config input
+      # is an EmpericalFormula.
+      MOLECULE = empirical_formula_block
+      
       config :series, ['y', 'b'], &c.list    # a list of the series to include
       config :charge, 1, &c.integer          # the charge for the parent ion
-      config :intensity, nil, &c.num_or_nil  # a uniform intensity value
+      config :intensity, nil, &c.numeric_or_nil  # a uniform intensity value
       config :nterm, 'H', &MOLECULE          # the n-terminal modification
       config :cterm, 'OH', &MOLECULE         # the c-terminal modification
       config :sort, true, &c.switch          # sorts the data by mass
