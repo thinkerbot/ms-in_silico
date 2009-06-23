@@ -1,6 +1,5 @@
 require 'molecules/libraries/residue'
 require 'constants/libraries/particle'
-require 'ms/in_silico'
 
 module Ms
   module InSilico

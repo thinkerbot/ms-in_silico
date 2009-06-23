@@ -2,6 +2,7 @@
 
 * digest optimized to only remove whitespace from
   fasta entries
+* added version file
 
 == 0.3.0 / 2009-05-25
 
