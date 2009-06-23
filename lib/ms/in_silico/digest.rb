@@ -13,25 +13,27 @@ module Ms
     #
     class Digest < Tap::Task
     
-      config :digester, 'Trypsin'                # The name of the digester
+      config :digester, 'Trypsin' do |digester|  # The name of the digester
+        Digester[digester] or raise ArgumentError.new("unknown digester: #{digester}")
+      end
+
       config :min_length, nil, &c.integer_or_nil # Minimum peptide length
       config :max_length, nil, &c.integer_or_nil # Maximum peptide length
       config :max_misses, 0, &c.integer          # The max # of missed cleavage sites
       config :site_digest, false, &c.boolean     # Digest to sites (rather than sequences)
 
       def process(sequence)
-        unless d = Digester[digester]
-          raise ArgumentError, "unknown digester: #{digester}" 
-        end
         
         # extract sequence from FASTA entries
-        sequence = $1 if sequence =~ /\A>.*?\n(.*)\z/m
-        sequence.gsub!(/\s/, "")
+        if sequence =~ /\A>.*?\n(.*)\z/m
+          sequence = $1 
+          sequence.gsub!(/\s/, "")
+        end
         
         peptides = if site_digest 
-          d.site_digest(sequence, max_misses)
+          digester.site_digest(sequence, max_misses)
         else
-          d.digest(sequence, max_misses)
+          digester.digest(sequence, max_misses)
         end
         
         # filter

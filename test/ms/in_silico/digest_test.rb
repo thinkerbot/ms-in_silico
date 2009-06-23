@@ -37,15 +37,15 @@ QQILSIMAG
     }, d.process("MIVIGRSIVHPYITNEYEPFAAEKQQILSIMAG")
   end
   
-  def test_process_removes_whitespace_from_sequence
+  def test_process_removes_whitespace_from_fasta_entry
     assert_equal %w{
       MIVIGR
       SIVHPYITNEYEPFAAEK
       QQILSIMAG
-    }, d.process("  MIVI\nGRSIVHP  YITNEYEPFA \n\r\nAEKQQILSIMAG\n")
+    }, d.process(">header\n  MIVI\nGRSIVHP  YITNEYEPFA \n\r\nAEKQQILSIMAG\n")
   end
   
-  def test_process_skips_header_of_fasta_entries
+  def test_process_skips_header_of_fasta_entry
     assert_equal %w{
       MIVIGR
       SIVHPYITNEYEPFAAEK
