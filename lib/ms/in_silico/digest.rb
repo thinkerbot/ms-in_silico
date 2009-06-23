@@ -45,7 +45,8 @@ module Ms
           peptide.length > max_length
         end if max_length
         
-        log 'digest', "#{sequence[0..10]}#{sequence.length > 10 ? '...' : ''} to #{peptides.length} peptides"
+        log(:digest) { "#{sequence[0..10]}#{sequence.length > 10 ? '...' : ''} to #{peptides.length} peptides" }
+        
         peptides
       end
       

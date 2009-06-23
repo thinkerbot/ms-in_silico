@@ -25,13 +25,13 @@ module Ms
       # is an EmpericalFormula.
       MOLECULE = empirical_formula_block
       
-      config :series, ['y', 'b'], &c.list    # a list of the series to include
-      config :charge, 1, &c.integer          # the charge for the parent ion
-      config :intensity, nil, &c.numeric_or_nil  # a uniform intensity value
-      config :nterm, 'H', &MOLECULE          # the n-terminal modification
-      config :cterm, 'OH', &MOLECULE         # the c-terminal modification
-      config :sort, true, &c.switch          # sorts the data by mass
-      config :unmask, true, &c.switch        # remove masked (negative) masses
+      config :series, ['y', 'b'], &c.list    # A list of the series to include
+      config :charge, 1, &c.integer          # The charge for the parent ion
+      config :intensity, nil, &c.numeric_or_nil  # A uniform intensity value
+      config :nterm, 'H', &MOLECULE          # The n-terminal modification
+      config :cterm, 'OH', &MOLECULE         # The c-terminal modification
+      config :sort, true, &c.switch          # Sorts the data by mass
+      config :unmask, true, &c.switch        # Remove masked (negative) masses
       
       # Constructs a hash of header data pertinent to the spectrum.
       def headers(spec)
